@@ -62,3 +62,5 @@ public class FallDetector extends Service implements SensorEventListener {
 	private SensorManager _sensorManager;
 	private Sensor _acceleratorSensor;
 }
+
+// end of FallDetector
