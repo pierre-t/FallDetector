@@ -12,5 +12,9 @@
     <string name="service_bound">Conectado ao serviço</string>
     <string name="service_unbound">Desconectado do serviço</string>
     <string name="show_sensor_data">Mostrar valores do sensor</string>
+    <string name="email_dispatch_success">SUCESSO no envio da mensagem de email</string>
+    <string name="email_dispatch_fail">FALHA no envio da mensagem de email</string>
+    <string name="email_subject_text">[FallDetector] Queda detectada!!!</string>
+    <string name="email_body_text" formatted="false">Uma queda foi detectada no dispositivo móvel de número %s. O indivíduo %s pode ter se machucado.</string>
 
 </resources>

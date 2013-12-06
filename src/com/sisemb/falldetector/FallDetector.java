@@ -9,14 +9,25 @@ import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.widget.Toast;
+import android.util.Log;
+import android.os.StrictMode;
 
 public class FallDetector extends Service implements SensorEventListener {
 
-    private final IBinder _localBinder = new LocalBinder();
     public static boolean _bServiceStarted = false;
+    private final IBinder _localBinder = new LocalBinder();
     private float _fSensorX;
     private float _fSensorY;
     private float _fSensorZ;
+
+    private static final String _strSenderEmailAddr = "appfalldetector@gmail.com";
+    private static final String _strSenderEmailPass = "senhasupersimples";
+
+    /** Contact info */
+    private String _strOwnerName;
+    private String _strOwnerPhoneNumber;
+    private String _strRecipientEmailAddr;
+    private String _strRecipientPhoneNumber;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -31,7 +42,12 @@ public class FallDetector extends Service implements SensorEventListener {
 
 	@Override
 	public void onCreate() {
-		_sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        // initializations for the mail sender
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        // initializations for the sensor reader
+        _sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		_acceleratorSensor =
 				_sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -72,7 +88,9 @@ public class FallDetector extends Service implements SensorEventListener {
 		
 		if (t > 2.5) {
             Toast.makeText(this, R.string.fall_detected, Toast.LENGTH_SHORT).show();
-            // TODO: send email, SMS and a phone ring
+            //doSendEmail();
+            // TODO: send an SMS
+            // TODO (maybe): make a phone call
             stopSelf();
 		}
 	}
@@ -80,6 +98,20 @@ public class FallDetector extends Service implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
+
+    private void doSendEmail() {
+        try {
+            GMailSender sender = new GMailSender(_strSenderEmailAddr, _strSenderEmailPass);
+            String strBodyText = String.format(getString(R.string.email_body_text),
+                    _strOwnerPhoneNumber, _strOwnerName);
+            String strSubject = getText(R.string.email_subject_text).toString();
+            sender.sendMail(strSubject, strBodyText, _strSenderEmailAddr, _strRecipientEmailAddr);
+            Toast.makeText(this, getString(R.string.email_dispatch_success), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+            Toast.makeText(this, getString(R.string.email_dispatch_fail), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     /** method for clients */
     public float[] getData() {
@@ -89,6 +121,23 @@ public class FallDetector extends Service implements SensorEventListener {
     /** method for clients */
     public void stop() {
         stopSelf();
+    }
+
+    /** method for clients */
+    public void updatePersonalInfo(String strOwnerName, String strOwnerPhone) {
+        _strOwnerName = strOwnerName;
+        _strOwnerPhoneNumber = strOwnerPhone;
+    }
+
+    /** method for clients */
+    public void updateContactInfo(String strRecpEmail, String strRecpPhone) {
+        _strRecipientEmailAddr = strRecpEmail;
+        _strRecipientPhoneNumber = strRecpPhone;
+    }
+
+    /** method for clients */
+    public void testSendEmail() {
+        doSendEmail();
     }
 
 	private SensorManager _sensorManager;

@@ -160,6 +160,9 @@ public class MainActivity extends Activity {
 
     public void onClickButton2(View v) {
         // TODO: implement a menu to allow the user to change settings
+        _Service.updatePersonalInfo("Nome Sobrenome", "(xx)xxxx-xxxx");
+        _Service.updateContactInfo("diego.sogari@gmail.com", "(xx)xxxx-xxxx");
+        _Service.testSendEmail();
     }
 
     public void onClickCheckBox(View v) {
