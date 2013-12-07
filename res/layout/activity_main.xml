@@ -6,7 +6,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity"
+    >
 
     <Button
         android:layout_width="wrap_content"
@@ -22,13 +23,25 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/edit_config"
+        android:text="@string/test_service"
         android:id="@+id/button2"
         android:layout_marginTop="33dp"
         android:singleLine="false"
         android:layout_below="@+id/button"
         android:layout_centerHorizontal="true"
-        android:onClick="onClickButton2"/>
+        android:onClick="onClickButton2"
+        android:enabled="false"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_sensor_data"
+        android:id="@+id/checkBox"
+        android:layout_below="@+id/button2"
+        android:layout_marginTop="60dp"
+        android:onClick="onClickCheckBox"
+        android:enabled="true"
+        android:checked="false"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -88,7 +101,6 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="X:"
             android:id="@+id/textView4"
-            android:layout_marginLeft="50dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"/>
 
@@ -113,17 +125,5 @@
             android:layout_marginTop="10dp"/>
 
     </RelativeLayout>
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/show_sensor_data"
-        android:id="@+id/checkBox"
-        android:layout_below="@+id/button2"
-        android:layout_marginTop="60dp"
-        android:onClick="onClickCheckBox"
-        android:layout_alignRight="@+id/button2"
-        android:enabled="true"
-        android:checked="false"/>
 
 </RelativeLayout>

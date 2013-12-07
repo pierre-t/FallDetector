@@ -3,18 +3,37 @@
 
     <string name="app_name">FallDetector</string>
     <string name="action_settings">Settings</string>
+
     <string name="start_service">Iniciar serviço</string>
     <string name="stop_service">Parar serviço</string>
-    <string name="edit_config">Editar configurações</string>
+    <string name="test_service">Testar serviço</string>
     <string name="fall_detected">Queda detectada!</string>
     <string name="service_welcome">Iniciando o serviço</string>
     <string name="service_farewell">Parando o serviço</string>
     <string name="service_bound">Conectado ao serviço</string>
     <string name="service_unbound">Desconectado do serviço</string>
     <string name="show_sensor_data">Mostrar valores do sensor</string>
-    <string name="email_dispatch_success">SUCESSO no envio da mensagem de email</string>
-    <string name="email_dispatch_fail">FALHA no envio da mensagem de email</string>
-    <string name="email_subject_text">[FallDetector] Queda detectada!!!</string>
-    <string name="email_body_text" formatted="false">Uma queda foi detectada no dispositivo móvel de número %s. O indivíduo %s pode ter se machucado.</string>
+    <string name="email_dispatch_success">Sucesso no envio da mensagem de email</string>
+    <string name="email_dispatch_fail">Falha no envio da mensagem de email</string>
+    <string name="sms_dispatch_success">Sucesso no envio da mensagem SMS</string>
+    <string name="sms_dispatch_fail">Falha no envio da mensagem SMS</string>
+    <string name="call_dispatch_success">Sucesso na chamada telefonica</string>
+    <string name="call_dispatch_fail">Falha na chamada telefonica</string>
+    <string name="message_subject_text">[FallDetector] Queda detectada!!!</string>
+    <string name="message_body_text" formatted="false">Uma queda foi detectada no
+        dispositivo móvel que enviou esta mensagem. O indivíduo %s pode ter se machucado.</string>
+
+    <string name="pref_title_owner_name">Nome do usuário</string>
+    <string name="pref_summary_owner_name">Nome do usuário</string>
+    <string name="pref_title_action_send_email">Enviar email</string>
+    <string name="pref_title_action_email_addr">Endereço de email</string>
+    <string name="pref_title_action_send_sms">Enviar SMS</string>
+    <string name="pref_title_action_phone_number">Número de telefone</string>
+    <string name="pref_title_action_make_call">Fazer ligação</string>
+    <string name="pref_title_action_stop_service">Parar serviço</string>
+    <string name="pref_summary_action_send_email">Envia uma mensagem de email ao detectar uma queda</string>
+    <string name="pref_summary_action_send_sms">Envia uma mensagem de SMS ao detectar uma queda</string>
+    <string name="pref_summary_action_make_call">Faz uma chamada telefônica ao detectar uma queda</string>
+    <string name="pref_summary_action_stop_service">Pára o serviço após detectar uma queda</string>
 
 </resources>

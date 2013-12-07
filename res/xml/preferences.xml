@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="pref_key_owner_name"
+        android:title="@string/pref_title_owner_name"/>
+
+    <CheckBoxPreference
+        android:key="pref_key_action_send_email"
+        android:title="@string/pref_title_action_send_email"
+        android:summary="@string/pref_summary_action_send_email"
+        android:defaultValue="false"/>
+
+    <EditTextPreference
+        android:key="pref_key_action_email_addr"
+        android:dependency="pref_key_action_send_email"
+        android:title="@string/pref_title_action_email_addr"/>
+
+    <CheckBoxPreference
+        android:key="pref_key_action_send_sms"
+        android:title="@string/pref_title_action_send_sms"
+        android:summary="@string/pref_summary_action_send_sms"
+        android:defaultValue="false"/>
+
+    <EditTextPreference
+        android:key="pref_key_action_sms_number"
+        android:dependency="pref_key_action_send_sms"
+        android:title="@string/pref_title_action_phone_number"/>
+
+    <CheckBoxPreference
+        android:key="pref_key_action_make_call"
+        android:title="@string/pref_title_action_make_call"
+        android:summary="@string/pref_summary_action_make_call"
+        android:defaultValue="false"/>
+
+    <EditTextPreference
+        android:key="pref_key_action_call_number"
+        android:dependency="pref_key_action_make_call"
+        android:title="@string/pref_title_action_phone_number"/>
+
+    <CheckBoxPreference
+        android:key="pref_key_action_stop_service"
+        android:title="@string/pref_title_action_stop_service"
+        android:summary="@string/pref_summary_action_stop_service"
+        android:defaultValue="true"/>
+
+</PreferenceScreen>

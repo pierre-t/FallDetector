@@ -2,6 +2,8 @@ package com.sisemb.falldetector;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.preference.PreferenceFragment;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -16,9 +18,24 @@ public class MainActivity extends Activity {
 
     private Intent _ServiceIntent;
     private boolean _bServiceBound;
+    private boolean _bSettingsOpen;
     private FallDetector _Service;
     private TimerHandler _TimerHandler;
     private LocalConnection _Connection;
+    private SettingsPane _SettingsPane;
+
+    public class SettingsPane extends PreferenceFragment {
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.preferences);
+        }
+        public void onResume() {
+            super.onResume();
+            View v = getView();
+            if (v != null)
+                v.setBackgroundColor(Color.rgb(230, 230, 230));
+        }
+    }
 
     public class TimerHandler extends Handler {
         private static final int DISPLAY_DATA = 1;
@@ -57,7 +74,9 @@ public class MainActivity extends Activity {
         _ServiceIntent = new Intent(this, FallDetector.class);
         _Connection = new LocalConnection();
         _TimerHandler = new TimerHandler();
+        _SettingsPane = new SettingsPane();
         _bServiceBound = false;
+        _bSettingsOpen = false;
         _Service = null;
 
         doInitialize();
@@ -84,11 +103,25 @@ public class MainActivity extends Activity {
     }
 
     @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        if (!_bSettingsOpen) {
+            getFragmentManager().beginTransaction()
+                    .replace(android.R.id.content, _SettingsPane)
+                    .addToBackStack(null)
+                    .commit();
+            _bSettingsOpen = true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (_bSettingsOpen) {
+            getFragmentManager().popBackStack();
+            _bSettingsOpen = false;
+        }
+        else super.onBackPressed();
+    }
 
     private void doInitialize() {
         Button button = (Button)findViewById(R.id.button);
@@ -140,15 +173,17 @@ public class MainActivity extends Activity {
 
     private void onServiceConnected() {
         _bServiceBound = true;
-        Toast.makeText(MainActivity.this, R.string.service_bound,
-                Toast.LENGTH_SHORT).show();
+        Button button = (Button)findViewById(R.id.button2);
+        button.setEnabled(true);
     }
 
     private void onServiceDisconnected() {
         _Service = null;
         _bServiceBound = false;
-        Toast.makeText(MainActivity.this, R.string.service_unbound,
-                Toast.LENGTH_SHORT).show();
+        Button button = (Button)findViewById(R.id.button);
+        button.setText(R.string.start_service);
+        button = (Button)findViewById(R.id.button2);
+        button.setEnabled(false);
     }
 
     public void onClickButton(View v) {
@@ -159,10 +194,7 @@ public class MainActivity extends Activity {
     }
 
     public void onClickButton2(View v) {
-        // TODO: implement a menu to allow the user to change settings
-        _Service.updatePersonalInfo("Nome Sobrenome", "(xx)xxxx-xxxx");
-        _Service.updateContactInfo("diego.sogari@gmail.com", "(xx)xxxx-xxxx");
-        _Service.testSendEmail();
+        _Service.testService();
     }
 
     public void onClickCheckBox(View v) {
