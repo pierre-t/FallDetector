@@ -16,11 +16,11 @@ import android.os.StrictMode;
 
 public class FallDetector extends Service implements SensorEventListener {
 
-    private static final String _strSenderEmailAddr = "appfalldetector@gmail.com";
-    private static final String _strSenderEmailPass = "senhasupersimples";
+    private static final String SENDER_EMAIL_ADDR = "appfalldetector@gmail.com";
+    private static final String SENDER_EMAIL_PASS = "senhasupersimples";
     private final IBinder _localBinder = new LocalBinder();
     public static boolean _bServiceStarted = false;
-    private SharedPreferences _Preferences;
+    private SharedPreferences _SharedPreferences;
 
     /** Sensor info */
     private float _fSensorX;
@@ -60,7 +60,7 @@ public class FallDetector extends Service implements SensorEventListener {
 		}
 
         // initialization of the shared preferences object
-        _Preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        _SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
 	@Override
@@ -70,7 +70,7 @@ public class FallDetector extends Service implements SensorEventListener {
         _bServiceStarted = true;
 		return START_STICKY;
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
         return _localBinder;
@@ -100,27 +100,27 @@ public class FallDetector extends Service implements SensorEventListener {
     public void onFallDetected() {
         Toast.makeText(this, R.string.fall_detected, Toast.LENGTH_SHORT).show();
 
-        _strOwnerName = _Preferences.getString("pref_key_owner_name", "");
-        _strEmailAddr = _Preferences.getString("pref_key_action_email_addr", "");
-        _strSmsNumber = _Preferences.getString("pref_key_action_sms_number", "");
-        _strPhoneNumber = _Preferences.getString("pref_key_action_phone_number", "");
+        _strOwnerName = _SharedPreferences.getString("pref_key_owner_name", "");
+        _strEmailAddr = _SharedPreferences.getString("pref_key_action_email_addr", "");
+        _strSmsNumber = _SharedPreferences.getString("pref_key_action_sms_number", "");
+        _strPhoneNumber = _SharedPreferences.getString("pref_key_action_phone_number", "");
         _strBodyText = String.format(getString(R.string.message_body_text), _strOwnerName);
         _strSubject = getText(R.string.message_subject_text).toString();
 
-        //if (_Preferences.getBoolean("pref_key_action_send_email", false))
-        //    doSendEmail();
-        if (_Preferences.getBoolean("pref_key_action_send_sms", false))
+        if (_SharedPreferences.getBoolean("pref_key_action_send_email", false))
+            doSendEmail();
+        if (_SharedPreferences.getBoolean("pref_key_action_send_sms", false))
             doSendSms();
-        if (_Preferences.getBoolean("pref_key_action_make_call", false))
+        if (_SharedPreferences.getBoolean("pref_key_action_make_call", false))
             doMakeCall();
-        if (_Preferences.getBoolean("pref_key_action_stop_service", true))
+        if (_SharedPreferences.getBoolean("pref_key_action_stop_service", true))
             stopSelf();
     }
 
     private void doSendEmail() {
         try {
-            GMailSender sender = new GMailSender(_strSenderEmailAddr, _strSenderEmailPass);
-            sender.sendMail(_strSubject, _strBodyText, _strSenderEmailAddr, _strEmailAddr);
+            GMailSender sender = new GMailSender(SENDER_EMAIL_ADDR, SENDER_EMAIL_PASS);
+            sender.sendMail(_strSubject, _strBodyText, SENDER_EMAIL_ADDR, _strEmailAddr);
             Toast.makeText(this, getString(R.string.email_dispatch_success), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("doSendEmail", e.getMessage(), e);
