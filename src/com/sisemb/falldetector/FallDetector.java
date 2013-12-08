@@ -7,6 +7,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.telephony.SmsManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -16,11 +18,18 @@ import android.os.StrictMode;
 
 public class FallDetector extends Service implements SensorEventListener {
 
+    /** Constants */
     private static final String SENDER_EMAIL_ADDR = "appfalldetector@gmail.com";
     private static final String SENDER_EMAIL_PASS = "senhasupersimples";
-    private final IBinder _localBinder = new LocalBinder();
+
+    /** Service running flag */
     public static boolean _bServiceStarted = false;
-    private SharedPreferences _SharedPreferences;
+
+    /** Shared objects */
+    private final IBinder _localBinder = new LocalBinder();
+    private SharedPreferences _sharedPreferences;
+    private SensorManager _sensorManager;
+    private Sensor _acceleratorSensor;
 
     /** Sensor info */
     private float _fSensorX;
@@ -60,7 +69,7 @@ public class FallDetector extends Service implements SensorEventListener {
 		}
 
         // initialization of the shared preferences object
-        _SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        _sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 	
 	@Override
@@ -100,20 +109,20 @@ public class FallDetector extends Service implements SensorEventListener {
     public void onFallDetected() {
         Toast.makeText(this, R.string.fall_detected, Toast.LENGTH_SHORT).show();
 
-        _strOwnerName = _SharedPreferences.getString("pref_key_owner_name", "");
-        _strEmailAddr = _SharedPreferences.getString("pref_key_action_email_addr", "");
-        _strSmsNumber = _SharedPreferences.getString("pref_key_action_sms_number", "");
-        _strPhoneNumber = _SharedPreferences.getString("pref_key_action_phone_number", "");
+        _strOwnerName = _sharedPreferences.getString("pref_key_owner_name", "");
+        _strEmailAddr = _sharedPreferences.getString("pref_key_action_email_addr", "");
+        _strSmsNumber = _sharedPreferences.getString("pref_key_action_sms_number", "");
+        _strPhoneNumber = _sharedPreferences.getString("pref_key_action_call_number", "");
         _strBodyText = String.format(getString(R.string.message_body_text), _strOwnerName);
         _strSubject = getText(R.string.message_subject_text).toString();
 
-        if (_SharedPreferences.getBoolean("pref_key_action_send_email", false))
+        if (_sharedPreferences.getBoolean("pref_key_action_send_email", false))
             doSendEmail();
-        if (_SharedPreferences.getBoolean("pref_key_action_send_sms", false))
+        if (_sharedPreferences.getBoolean("pref_key_action_send_sms", false))
             doSendSms();
-        if (_SharedPreferences.getBoolean("pref_key_action_make_call", false))
+        if (_sharedPreferences.getBoolean("pref_key_action_make_call", false))
             doMakeCall();
-        if (_SharedPreferences.getBoolean("pref_key_action_stop_service", true))
+        if (_sharedPreferences.getBoolean("pref_key_action_stop_service", true))
             stopSelf();
     }
 
@@ -130,7 +139,7 @@ public class FallDetector extends Service implements SensorEventListener {
 
     private void doSendSms() {
         try {
-            // TODO: send SMS message
+            SmsManager.getDefault().sendTextMessage(_strSmsNumber, null, _strBodyText, null, null);
             Toast.makeText(this, getString(R.string.sms_dispatch_success), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("doSendSms", e.getMessage(), e);
@@ -140,7 +149,9 @@ public class FallDetector extends Service implements SensorEventListener {
 
     private void doMakeCall() {
         try {
-            // TODO: make phone call
+            Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + _strPhoneNumber));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             Toast.makeText(this, getString(R.string.call_dispatch_success), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("doMakeCall", e.getMessage(), e);
@@ -162,9 +173,6 @@ public class FallDetector extends Service implements SensorEventListener {
     public void testService() {
         onFallDetected();
     }
-
-	private SensorManager _sensorManager;
-	private Sensor _acceleratorSensor;
 }
 
 // end of FallDetector
