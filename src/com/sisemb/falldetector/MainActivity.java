@@ -16,9 +16,15 @@ import android.widget.*;
 
 public class MainActivity extends Activity {
 
-    private Intent _ServiceIntent;
+    /** Constants */
+    private static final int TIMER_INTERVAL = 500;
+
+    /** Flags */
     private boolean _bServiceBound;
     private boolean _bSettingsOpen;
+
+    /** Activity objects */
+    private Intent _ServiceIntent;
     private FallDetector _Service;
     private TimerHandler _TimerHandler;
     private LocalConnection _Connection;
@@ -66,9 +72,9 @@ public class MainActivity extends Activity {
         }
     }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         _ServiceIntent = new Intent(this, FallDetector.class);
@@ -80,7 +86,7 @@ public class MainActivity extends Activity {
         _Service = null;
 
         doInitialize();
-	}
+    }
 
     @Override
     protected void onDestroy(){
@@ -99,7 +105,7 @@ public class MainActivity extends Activity {
         super.onResume();
         CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
         if (checkBox.isChecked())
-            _TimerHandler.start(1000);
+            _TimerHandler.start(TIMER_INTERVAL);
     }
 
     @Override
@@ -202,10 +208,12 @@ public class MainActivity extends Activity {
         CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
         if (checkBox.isChecked()) {
             layout.setVisibility(View.VISIBLE);
-            _TimerHandler.start(1000);
+            _TimerHandler.start(TIMER_INTERVAL);
         } else {
             layout.setVisibility(View.INVISIBLE);
             _TimerHandler.stop();
         }
     }
 }
+
+// end of MainActivity

@@ -23,8 +23,6 @@ public class FallDetector extends Service implements SensorEventListener {
     private static final String SENDER_EMAIL_ADDR = "appfalldetector@gmail.com";
     private static final String SENDER_EMAIL_PASS = "senhasupersimples";
     private static final String SMS_SENT = "SMS_SENT";
-    private static final String SMS_DELIVERED = "SMS_DELIVERED";
-
 
     /** Service running flag */
     public static boolean _bServiceStarted = false;
@@ -34,9 +32,7 @@ public class FallDetector extends Service implements SensorEventListener {
     private SharedPreferences _sharedPreferences;
     private SensorManager _sensorManager;
     private Sensor _acceleratorSensor;
-    private SmsSentReceiver _SmsSentReceiver;
-    private SmsDeliveredReceiver _SmsDeliveredReceiver;
-
+    private SmsSentReceiver _smsSentReceiver;
 
     /** Sensor info */
     private float _fSensorX;
@@ -48,14 +44,14 @@ public class FallDetector extends Service implements SensorEventListener {
     private String _strEmailAddr;
     private String _strSmsNumber;
     private String _strPhoneNumber;
-    private String _strBodyText;
-    private String _strSubject;
+    private String _strMsgBody;
+    private String _strMsgSubject;
 
+    /** SMS broadcast receiver */
     public class SmsSentReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            switch (getResultCode())
-            {
+            switch (getResultCode()) {
                 case Activity.RESULT_OK:
                     Toast.makeText(getBaseContext(), "SMS sent",
                             Toast.LENGTH_SHORT).show();
@@ -80,24 +76,7 @@ public class FallDetector extends Service implements SensorEventListener {
         }
     }
 
-    public class SmsDeliveredReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context arg0, Intent arg1) {
-            switch (getResultCode())
-            {
-                case Activity.RESULT_OK:
-                    Toast.makeText(getBaseContext(), "SMS delivered",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case Activity.RESULT_CANCELED:
-                    Toast.makeText(getBaseContext(), "SMS not delivered",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    }
-
-        /**
+    /**
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
@@ -108,75 +87,72 @@ public class FallDetector extends Service implements SensorEventListener {
         }
     }
 
-	@Override
-	public void onCreate() {
+    @Override
+    public void onCreate() {
         // initializations for the mail sender
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         // initializations for the sensor reader
         _sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		_acceleratorSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		if (_acceleratorSensor == null) {
-			stopSelf();
-		}
+        _acceleratorSensor = _sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (_acceleratorSensor == null) {
+            stopSelf();
+        }
 
         // other initializations
         _sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        _SmsSentReceiver = new SmsSentReceiver();
-        _SmsDeliveredReceiver = new SmsDeliveredReceiver();
-
-        // registering of the broadcast receivers
-        registerReceiver(_SmsSentReceiver, new IntentFilter(SMS_SENT));
-        registerReceiver(_SmsDeliveredReceiver, new IntentFilter(SMS_DELIVERED));
+        _smsSentReceiver = new SmsSentReceiver();
+        registerReceiver(_smsSentReceiver, new IntentFilter(SMS_SENT));
     }
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		Toast.makeText(this, R.string.service_welcome, Toast.LENGTH_SHORT) .show();
-		_sensorManager.registerListener(this, _acceleratorSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Toast.makeText(this, R.string.service_welcome, Toast.LENGTH_SHORT) .show();
+        _sensorManager.registerListener(this, _acceleratorSensor, SensorManager.SENSOR_DELAY_NORMAL);
         _bServiceStarted = true;
-		return START_STICKY;
-	}
+        return START_STICKY;
+    }
 
-	@Override
-	public IBinder onBind(Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
         return _localBinder;
-	}
+    }
 
-	@Override
-	public void onDestroy() {
-		Toast.makeText(this, R.string.service_farewell, Toast.LENGTH_SHORT).show();
-        unregisterReceiver(_SmsSentReceiver);
-        unregisterReceiver(_SmsDeliveredReceiver);
+    @Override
+    public void onDestroy() {
+        Toast.makeText(this, R.string.service_farewell, Toast.LENGTH_SHORT).show();
+        unregisterReceiver(_smsSentReceiver);
         _bServiceStarted = false;
-	}
+    }
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
+    @Override
+    public void onSensorChanged(SensorEvent event) {
         _fSensorX = event.values[0]/SensorManager.GRAVITY_EARTH;
         _fSensorY = event.values[1]/SensorManager.GRAVITY_EARTH;
         _fSensorZ = event.values[2]/SensorManager.GRAVITY_EARTH;
-		
-		double t = Math.sqrt(_fSensorX*_fSensorX + _fSensorY*_fSensorY + _fSensorZ*_fSensorZ);
-		if (t > 2.5)
-            onFallDetected();
-	}
 
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	}
+        double t = Math.sqrt(_fSensorX*_fSensorX + _fSensorY*_fSensorY + _fSensorZ*_fSensorZ);
+        if (t > 2.5)
+            onFallDetected();
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
     public void onFallDetected() {
         Toast.makeText(this, R.string.fall_detected, Toast.LENGTH_SHORT).show();
 
+        // get info from user preferences
         _strOwnerName = _sharedPreferences.getString("pref_key_owner_name", "");
         _strEmailAddr = _sharedPreferences.getString("pref_key_action_email_addr", "");
         _strSmsNumber = _sharedPreferences.getString("pref_key_action_sms_number", "");
         _strPhoneNumber = _sharedPreferences.getString("pref_key_action_call_number", "");
-        _strBodyText = String.format(getString(R.string.message_body_text), _strOwnerName);
-        _strSubject = getText(R.string.message_subject_text).toString();
+        _strMsgBody = String.format(getString(R.string.fall_message_body), _strOwnerName);
+        _strMsgSubject = getText(R.string.fall_message_subject).toString();
 
+        // send info according to user preferences
         if (_sharedPreferences.getBoolean("pref_key_action_send_email", false))
             doSendEmail();
         if (_sharedPreferences.getBoolean("pref_key_action_send_sms", false))
@@ -190,7 +166,7 @@ public class FallDetector extends Service implements SensorEventListener {
     private void doSendEmail() {
         try {
             GMailSender sender = new GMailSender(SENDER_EMAIL_ADDR, SENDER_EMAIL_PASS);
-            sender.sendMail(_strSubject, _strBodyText, SENDER_EMAIL_ADDR, _strEmailAddr);
+            sender.sendMail(_strMsgSubject, _strMsgBody, SENDER_EMAIL_ADDR, _strEmailAddr);
             Toast.makeText(this, getString(R.string.email_dispatch_success), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("doSendEmail", e.getMessage(), e);
@@ -200,10 +176,8 @@ public class FallDetector extends Service implements SensorEventListener {
 
     private void doSendSms() {
         try {
-            PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
-            PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
-            SmsManager.getDefault().sendTextMessage(_strSmsNumber, null, _strBodyText, sentPI, deliveredPI);
-            //SmsManager.getDefault().sendTextMessage(_strSmsNumber, null, _strBodyText, null, null);
+            PendingIntent smsSentPI = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
+            SmsManager.getDefault().sendTextMessage(_strSmsNumber, null, _strMsgBody, smsSentPI, null);
             Toast.makeText(this, getString(R.string.sms_dispatch_success), Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e("doSendSms", e.getMessage(), e);

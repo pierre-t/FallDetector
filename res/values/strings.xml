@@ -19,9 +19,9 @@
     <string name="sms_dispatch_fail">Falha no envio da mensagem SMS</string>
     <string name="call_dispatch_success">Sucesso na chamada telefonica</string>
     <string name="call_dispatch_fail">Falha na chamada telefonica</string>
-    <string name="message_subject_text">[FallDetector] Queda detectada!!!</string>
-    <string name="message_body_text" formatted="false">Uma queda foi detectada no
-        dispositivo móvel que enviou esta mensagem. O indivíduo %s pode ter se machucado.</string>
+    <string name="fall_message_subject">[FallDetector] Queda detectada!</string>
+    <string name="fall_message_body" formatted="false">Uma queda foi detectada no
+        dispositivo que enviou esta mensagem. O individuo %s pode ter se machucado.</string>
 
     <string name="pref_title_owner_name">Nome do usuário</string>
     <string name="pref_summary_owner_name">Nome do usuário</string>
