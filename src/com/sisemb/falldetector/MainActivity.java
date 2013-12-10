@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
     private LocalConnection _Connection;
     private SettingsPane _SettingsPane;
 
-    public class SettingsPane extends PreferenceFragment {
+    public static class SettingsPane extends PreferenceFragment {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
@@ -169,11 +169,11 @@ public class MainActivity extends Activity {
             TextView textView;
             float arData[] = _Service.getData();
             textView = (TextView)findViewById(R.id.textView);
-            textView.setText(Float.toString(arData[0]));
+            textView.setText(String.format("%.6f", arData[0]));
             textView = (TextView)findViewById(R.id.textView2);
-            textView.setText(Float.toString(arData[1]));
+            textView.setText(String.format("%.6f", arData[1]));
             textView = (TextView)findViewById(R.id.textView3);
-            textView.setText(Float.toString(arData[2]));
+            textView.setText(String.format("%.6f", arData[2]));
         }
     }
 
